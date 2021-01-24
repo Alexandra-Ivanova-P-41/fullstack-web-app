@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link rel="stylesheet" href="style/style.css">
+</head>
+
+<body>
+  <script class="table-template" type="text/x-handlebars-template">
+    <tr class="table-row">
+      <th class="table-row-cell">Name</th>
+      <th class="table-row-cell">Amount</th>
+      <th class="table-row-cell">Price</th>
+    </tr>
+    <tr class="table-row">
+      {{#each list}}
+      <tr class="table-row">
+        <td class="table-row-cell">{{this.product_name}}</td>
+        <td class="table-row-cell">
+          {{this.product_amount}}
+        </td>
+        <td class="table-row-cell">
+          {{this.product_price}}
+        </td>
+        <td class="table-row-cell table-row-cell--btn"><button class="table-row-cell__button table-row-cell__button--edit" id="{{this.id}}">Edit</button></td>
+        <td class="table-row-cell table-row-cell--btn"><button class="table-row-cell__button table-row-cell__button--delete" id="{{this.id}}">Delete</button></td>
+      </tr>
+      {{/each}}
+    </tr>
+  </script>
+  <table class="table"></table>
+  <button class="add-product-button">Add new product</button>
+  <div class="edit-form">
+    <div class="edit-form-column">
+      <h3>Name</h3>
+      <input class="edit-form__input edit-form__input--name" placeholder="name" type="text">
+    </div>
+    <div class="edit-form-column">
+      <h3>Amount</h3>
+      <input class="edit-form__input edit-form__input--amount" placeholder="amount" type="number">
+    </div>
+    <div class="edit-form-column">
+      <h3>Price</h3>
+      <input class="edit-form__input edit-form__input--price" placeholder="price" type="number">
+    </div>
+    <button class="edit-form__button edit-form__button--update">Update</button>
+    <button class="edit-form__button edit-form__button--save">Save</button>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.6/handlebars.min.js" integrity="sha512-zT3zHcFYbQwjHdKjCu6OMmETx8fJA9S7E6W7kBeFxultf75OPTYUJigEKX58qgyQMi1m1EgenfjMXlRZG8BXaw==" crossorigin=" anonymous " defer></script>
+  <script src="scripts/script.js"></script>
+</body>
+
+</html>

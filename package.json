@@ -1,0 +1,14 @@
+{
+  "name": "fullstack-web-app",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "server": "node server/index.js"
+  },
+  "author": "Ivanova Sasha",
+  "license": "ISC",
+  "devDependencies": {
+    "express": "^4.17.1"
+  },
+  "description": ""
+}
