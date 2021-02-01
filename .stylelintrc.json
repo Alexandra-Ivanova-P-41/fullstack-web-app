@@ -1,0 +1,12 @@
+{
+  "extends": "stylelint-config-standard",
+  "rules": {
+    "font-family-no-missing-generic-family-keyword": [
+      true,
+      {
+        "ignoreFontFamilies": ["Rubik", "Times New Roman"]
+      }
+    ],
+    "no-missing-end-of-source-newline": 0
+  }
+}

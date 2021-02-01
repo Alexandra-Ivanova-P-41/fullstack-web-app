@@ -14,59 +14,59 @@ function searchById(element) {
   return element.id === Number(this);
 }
 
-function traalla() {
+function getAllProducts(fileName) {
   try {
-    JSON.parse(fs.read(fileName));
+    return JSON.parse(
+      fs.readFileSync(fileName, 'utf-8', (err, data) => {
+        if (err) {
+          console.error(err);
+          return false;
+        }
+      })
+    );
   } catch (err) {
-    console.log(err);
+    console.error(err);
+    return false;
   }
 
 }
 
-function getAllProducts(fileName) {
-  return JSON.parse(
-    fs.readFileSync(fileName, 'utf-8', (err, data) => {
-      if (err) {
-        console.error(err)
-        return
-      }
-    })
-  );
-}
-
 function getProductById(fileName, id) {
-  let list = JSON.parse(
-    fs.readFileSync(fileName, 'utf-8', (err, data) => {
-      if (err) {
-        console.error(err)
-        return
-      }
-    })
-  );
+  let list;
+  try {
+    list = JSON.parse(
+      fs.readFileSync(fileName, 'utf-8', (err, data) => {
+        if (err) {
+          console.error(err);
+          return false;
+        }
+      })
+    );
+  } catch (err) {
+    console.error(err);
+    return false;
+  }
   return list.find(searchById, id);
 }
 
 function addProduct(fileName, product) {
-  if (product.id === null || product.id === "" || product.id === undefined) {
+  if (!product.id || !product.product_name || !product.product_amount || !product.product_price) {
     return false;
   }
-  if (product.product_name === null || product.product_name === "" || product.product_name === undefined) {
+  let list;
+  try {
+    list = JSON.parse(
+      fs.readFileSync(fileName, 'utf-8', (err, data) => {
+        if (err) {
+          console.error(err);
+          return false;
+        }
+      })
+    );
+  } catch (err) {
+    console.error(err);
     return false;
   }
-  if (product.product_amount === null || product.product_amount === "" || product.product_amount === undefined) {
-    return false;
-  }
-  if (product.product_price === null || product.product_price === "" || product.product_price === undefined) {
-    return false;
-  }
-  let list = JSON.parse(
-    fs.readFileSync(fileName, 'utf-8', (err, data) => {
-      if (err) {
-        console.error(err)
-        return
-      }
-    })
-  );
   list.push(product);
   fs.writeFileSync(fileName, JSON.stringify(list), (err) => {
     if (err) {
@@ -78,26 +78,23 @@ function addProduct(fileName, product) {
 }
 
 function updateProduct(fileName, id, product) {
-  if (product.id === null || product.id === "" || product.id === undefined) {
+  if (!product.id || !product.product_name || !product.product_amount || !product.product_price) {
     return false;
   }
-  if (product.product_name === null || product.product_name === "" || product.product_name === undefined) {
+  let list;
+  try {
+    list = JSON.parse(
+      fs.readFileSync(fileName, 'utf-8', (err, data) => {
+        if (err) {
+          console.error(err);
+          return false;
+        }
+      })
+    );
+  } catch (err) {
+    console.error(err);
     return false;
   }
-  if (product.product_amount === null || product.product_amount === "" || product.product_amount === undefined) {
-    return false;
-  }
-  if (product.product_price === null || product.product_price === "" || product.product_price === undefined) {
-    return false;
-  }
-  let list = JSON.parse(
-    fs.readFileSync(fileName, 'utf-8', (err, data) => {
-      if (err) {
-        console.error(err)
-        return
-      }
-    })
-  );
   const listId = list.findIndex(searchById, id);
   if (listId === -1) {
     return false;
@@ -113,14 +110,20 @@ function updateProduct(fileName, id, product) {
 }
 
 function deleteProduct(fileName, id) {
-  let list = JSON.parse(
-    fs.readFileSync(fileName, 'utf-8', (err, data) => {
-      if (err) {
-        console.error(err)
-        return;
-      }
-    })
-  );
+  let list;
+  try {
+    list = JSON.parse(
+      fs.readFileSync(fileName, 'utf-8', (err, data) => {
+        if (err) {
+          console.error(err);
+          return false;
+        }
+      })
+    );
+  } catch (err) {
+    console.error(err);
+    return false;
+  }
   const listId = list.findIndex(searchById, id);
   if (listId === -1) {
     return false;
@@ -135,24 +138,22 @@ function deleteProduct(fileName, id) {
   return true;
 }
 
-const JSONfile = "server/products.json";
-//console.log(productById(JSONfile, 1));
-
+const JSONFile = "server/products.json";
 
 app.get("/product", function(req, res) {
-  res.send(getAllProducts(JSONfile));
+  res.send(getAllProducts(JSONFile));
 });
 
-function testId(id) {
+function isValidId(id) {
   return !isNaN(parseInt(id));
 }
 
 app.get("/product/:id", function(req, res) {
   let id = +req.params.id;
-  if (!testId(id)) {
+  if (!isValidId(id)) {
     res.status(443).send(`Error in id product`);
   }
-  let result = getProductById(JSONfile, id);
+  let result = getProductById(JSONFile, id);
   if (result === undefined) {
     res.status(441).send({
       error: `Product not found`
@@ -163,13 +164,13 @@ app.get("/product/:id", function(req, res) {
 
 app.put("/product/:id", function(req, res) {
   let id = +req.params.id;
-  if (!testId(id)) {
+  if (!isValidId(id)) {
     res.status(443).send({
       error: `Error in id product`
     });
     return;
   }
-  let result = updateProduct(JSONfile, id, req.body);
+  let result = updateProduct(JSONFile, id, req.body);
   if (result) {
     res.status(220).send({
       result: 'ok'
@@ -182,7 +183,7 @@ app.put("/product/:id", function(req, res) {
 });
 
 app.post("/product", function(req, res) {
-  let result = addProduct(JSONfile, req.body);
+  let result = addProduct(JSONFile, req.body);
   if (result) {
     res.status(220).send({
       result: 'ok'
@@ -196,13 +197,13 @@ app.post("/product", function(req, res) {
 
 app.delete("/product/:id", function(req, res) {
   let id = +req.params.id;
-  if (!testId(id)) {
+  if (!isValidId(id)) {
     res.status(440).send({
       error: `Error in id product`
     });
     return;
   }
-  let result = deleteProduct(JSONfile, id);
+  let result = deleteProduct(JSONFile, id);
   if (result) {
     res.status(220).send({
       result: 'ok'
@@ -215,4 +216,4 @@ app.delete("/product/:id", function(req, res) {
 });
 
 
-app.listen(8080);
+app.listen(5050);

@@ -1,30 +1,52 @@
-async function deleteProduct(id, port) {
-  let response = await fetch('http://localhost:' + port + '/product/' + id, {
-    method: 'DELETE'
-  });
-  return await response.json();
+async function deleteProduct(id) {
+  try {
+    const response = await fetch(`http://localhost:5050/product/${id}`, {
+      method: 'DELETE'
+    });
+    return await response.json();
+  } catch (err) {
+    console.log(err);
+    return {
+      error: "Failed to delete product"
+    };
+  }
+
 }
 
-async function updateProduct(id, product, port) {
-  let response = await fetch('http://localhost:' + port + '/product/' + id, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json;charset=utf-8'
-    },
-    body: JSON.stringify(product)
-  });
-  return await response.json();
+async function updateProduct(id, product) {
+  try {
+    const response = await fetch(`http://localhost:5050/product/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json;charset=utf-8'
+      },
+      body: JSON.stringify(product)
+    });
+    return await response.json();
+  } catch (err) {
+    console.log(err);
+    return {
+      error: "Failed to update product"
+    };
+  }
 }
 
-async function addProduct(product, port) {
-  let response = await fetch('http://localhost:' + port + '/product', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json;charset=utf-8'
-    },
-    body: JSON.stringify(product)
-  });
-  return await response.json();
+async function addProduct(product) {
+  try {
+    const response = await fetch('http://localhost:5050/product', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json;charset=utf-8'
+      },
+      body: JSON.stringify(product)
+    });
+    return await response.json();
+  } catch (err) {
+    console.log(err);
+    return {
+      error: "Failed to add product"
+    };
+  }
 }
 
 function getMaxId(list) {
@@ -38,7 +60,6 @@ function getMaxId(list) {
 }
 
 window.onload = async function() {
-  const port = 8080;
   async function update() {
     const productTableTemplateSource = document.querySelector(".table-template").innerHTML;
     const productTableTemplate = Handlebars.compile(productTableTemplateSource);
@@ -48,7 +69,7 @@ window.onload = async function() {
     buttons.forEach((button) => {
       button.addEventListener('click', async function() {
         const elementId = +button.getAttribute('id');
-        let productListId = list.findIndex((item) => item.id === elementId);
+        const productListId = list.findIndex((item) => item.id === elementId);
         if (button.classList.contains('table-row-cell__button--edit')) {
           const form = document.querySelector(".edit-form");
           const formNameInput = document.querySelector(".edit-form__input--name");
@@ -64,7 +85,7 @@ window.onload = async function() {
           formSaveButton.style.display = "none";
           form.style.display = "flex";
         } else if (button.classList.contains('table-row-cell__button--delete')) {
-          let result = await deleteProduct(elementId, port);
+          const result = await deleteProduct(elementId);
           if (result.result === 'ok') {
             list.splice(productListId, 1);
           } else {
@@ -75,9 +96,16 @@ window.onload = async function() {
       });
     });
   }
+  let list;
+  try {
+    const response = await fetch('http://localhost:5050/product');
+    list = await response.json();
+  } catch (err) {
+    console.log(err);
+    alert("Server is not response");
+    return;
+  }
 
-  let response = await fetch('http://localhost:' + port + '/product');
-  let list = await response.json();
   update();
 
   const formUpdateButton = document.querySelector(".edit-form__button--update");
@@ -86,16 +114,16 @@ window.onload = async function() {
   const formPriceInput = document.querySelector(".edit-form__input--price");
   const form = document.querySelector(".edit-form");
   formUpdateButton.addEventListener('click', async function(event) {
-    let productId = +event.target.getAttribute("id");
-    let newProduct = {
+    const productId = +event.target.getAttribute("id");
+    const newProduct = {
       id: productId,
       product_name: formNameInput.value,
       product_amount: formAmountInput.value,
       product_price: formPriceInput.value
     }
-    let result = await updateProduct(productId, newProduct, port);
+    const result = await updateProduct(productId, newProduct);
     if (result.result === 'ok') {
-      let productListId = list.findIndex((item) => item.id === productId);
+      const productListId = list.findIndex((item) => item.id === productId);
       list[productListId] = newProduct;
       update();
       form.style.display = "none";
@@ -104,14 +132,14 @@ window.onload = async function() {
     }
   });
   const formSaveButton = document.querySelector(".edit-form__button--save");
-  formSaveButton.addEventListener('click', async function(event) {
-    let newProduct = {
+  formSaveButton.addEventListener('click', async function() {
+    const newProduct = {
       id: getMaxId(list) + 1,
       product_name: formNameInput.value,
       product_amount: formAmountInput.value,
       product_price: formPriceInput.value
     }
-    let result = await addProduct(newProduct, port);
+    const result = await addProduct(newProduct);
     if (result.result === 'ok') {
       list.push(newProduct);
       update();
@@ -123,7 +151,7 @@ window.onload = async function() {
     }
   });
   const addProductButton = document.querySelector(".add-product-button");
-  addProductButton.addEventListener('click', async function(event) {
+  addProductButton.addEventListener('click', async function() {
     formNameInput.value = "";
     formAmountInput.value = "";
     formPriceInput.value = "";
