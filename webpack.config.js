@@ -44,12 +44,6 @@ module.exports = {
           },
           "css-loader", // лоадер парсинга css
         ],
-      }, {
-        test: /\.(jpg|png|svg)$/,
-        loader: 'file-loader',
-        options: {
-          name: 'images/[name].[ext]'
-        },
       },
     ],
   },
